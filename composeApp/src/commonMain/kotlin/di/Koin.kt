@@ -10,31 +10,32 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import screens.GameScreenModel
+import screens.game.GameScreenModel
+import screens.menu.MenuScreenModel
 
 val gameModule = module {
-    single(named("playerAbility")) { MutableStateFlow<PlayerState>(PlayerState.Ready) }
-    single(named("opponentAbility")) { MutableStateFlow<PlayerState>(PlayerState.Ready) }
+    factory { MenuScreenModel() }
 
-    single<GameLogicCoordinator> {
-        GameLogicDefaultCoordinator(
-            playerState = get(named("playerAbility")),
-            opponentState = get(named("opponentAbility")),
-            opponent = get()
+    factory {
+        val playerState = MutableStateFlow<PlayerState>(PlayerState.Ready)
+        val opponentState = MutableStateFlow<PlayerState>(PlayerState.Ready)
+
+        val opponent: Opponent = DefaultOpponent(
+            playerState = playerState,
+            opponentState = opponentState
+        )
+
+        val coordinator: GameLogicCoordinator = GameLogicDefaultCoordinator(
+            playerState = playerState,
+            opponentState = opponentState,
+            opponent = opponent
+        )
+
+        GameScreenModel(
+            gameLogicCoordinator = coordinator,
+            playerState = playerState
         )
     }
-
-    single<Opponent> {
-        DefaultOpponent(
-            playerState = get(named("playerAbility")),
-            opponentState = get(named("opponentAbility"))
-        )
-    }
-
-    factory { GameScreenModel(
-        gameLogicCoordinator = get(),
-        playerState = get(named("playerAbility"))
-    ) }
 }
 
 fun initKoin() {
