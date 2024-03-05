@@ -1,4 +1,4 @@
-package screens
+package screens.game
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -12,8 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import domain.entities.GameOption
 import domain.entities.GameResult
 import domain.entities.GameState
@@ -33,11 +41,25 @@ import domain.entities.PlayerState
 data object GameScreen : Screen {
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         val screenModel: GameScreenModel = getScreenModel()
         val gameState = screenModel.gameState.collectAsState()
 
-        gameState.value?.let { currentGameState ->
-            GameView(gameState = currentGameState, screenModel = screenModel)
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Rock, Paper, Scissors") },
+                    navigationIcon = {
+                        IconButton(onClick = { navigator.pop() }) {
+                            Icon(Icons.Default.ArrowBack, "Back")
+                        }
+                    }
+                )
+            }
+        ) {
+            gameState.value?.let { currentGameState ->
+                GameView(gameState = currentGameState, screenModel = screenModel)
+            }
         }
     }
 
@@ -48,7 +70,7 @@ data object GameScreen : Screen {
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom
+            verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.height(100.dp))
             PlayerStateLabel(gameState.opponent, gameState)
