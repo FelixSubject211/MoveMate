@@ -3,9 +3,6 @@ package domain
 import domain.entities.GameState
 import kotlinx.coroutines.flow.Flow
 
-interface GameLogicCoordinator {
+interface GameLogicPresenter {
     var gameState: Flow<GameState>
-
-    fun askForNewMatch()
 }
-

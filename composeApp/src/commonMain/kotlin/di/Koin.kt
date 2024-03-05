@@ -1,14 +1,14 @@
 package di
 
 
-import domain.GameLogicCoordinator
-import domain.Opponent
 import domain.impl.DefaultOpponent
 import domain.entities.PlayerState
-import domain.impl.GameLogicDefaultCoordinator
+import domain.impl.GameLogicCoordinator
+import domain.impl.opponentInteractor
+import domain.impl.playerInteractor
+import domain.impl.presenter
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.context.startKoin
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import screens.game.GameScreenModel
 import screens.menu.MenuScreenModel
@@ -20,20 +20,21 @@ val gameModule = module {
         val playerState = MutableStateFlow<PlayerState>(PlayerState.Ready)
         val opponentState = MutableStateFlow<PlayerState>(PlayerState.Ready)
 
-        val opponent: Opponent = DefaultOpponent(
-            playerState = playerState,
-            opponentState = opponentState
-        )
-
-        val coordinator: GameLogicCoordinator = GameLogicDefaultCoordinator(
+        val coordinator = GameLogicCoordinator(
             playerState = playerState,
             opponentState = opponentState,
-            opponent = opponent
         )
 
+        val opponent = DefaultOpponent(
+            gameLogicPresenter = coordinator.presenter(),
+            gameLogicOpponentInteractor = coordinator.opponentInteractor()
+        )
+
+        opponent.start()
+
         GameScreenModel(
-            gameLogicCoordinator = coordinator,
-            playerState = playerState
+            gameLogicPresenter = coordinator.presenter(),
+            gameLogicPlayerInteractor = coordinator.playerInteractor(),
         )
     }
 }

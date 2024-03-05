@@ -1,6 +1,5 @@
 package screens.game
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -26,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -49,13 +47,15 @@ data object GameScreen : Screen {
 
         Scaffold(
             topBar = {
-                TopAppBar(backgroundColor = Color.White) {
-                    IconButton(onClick = { navigator.pop() }) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                TopAppBar(
+                    title = { Text("Rock, Paper, Scissors") },
+                    navigationIcon = {
+                        IconButton(onClick = { navigator.pop() }) {
+                            Icon(Icons.Default.ArrowBack, "Back")
+                        }
                     }
-                }
-            },
-            modifier = Modifier,
+                )
+            }
         ) {
             gameState.value?.let { currentGameState ->
                 GameView(gameState = currentGameState, screenModel = screenModel)
